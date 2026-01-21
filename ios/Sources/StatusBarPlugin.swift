@@ -1,4 +1,3 @@
-
 import OSLog
 import SwiftRs
 import Tauri
@@ -25,12 +24,14 @@ class ImmersionBarPlugin: Plugin {
 
   @objc public func setImmersionBar(_ invoke: Invoke) throws {
     let args = try invoke.parseArgs(SetImmersionBarArgs.self)
-    os_log(.debug, log: log, "setImmersionBar-args: paddingStatusBar-%{public}@, paddingNavigationBar-%{public}@, darkStatusBar-%{public}@, showStatusBar-%{public}@, showNavigationBar-%{public}@", 
-           String(describing: args.paddingStatusBar), 
-           String(describing: args.paddingNavigationBar), 
-           String(describing: args.darkStatusBar), 
-           String(describing: args.showStatusBar), 
-           String(describing: args.showNavigationBar))
+    os_log(
+      .debug, log: log,
+      "setImmersionBar-args: paddingStatusBar-%{public}@, paddingNavigationBar-%{public}@, darkStatusBar-%{public}@, showStatusBar-%{public}@, showNavigationBar-%{public}@",
+      String(describing: args.paddingStatusBar),
+      String(describing: args.paddingNavigationBar),
+      String(describing: args.darkStatusBar),
+      String(describing: args.showStatusBar),
+      String(describing: args.showNavigationBar))
 
     if let paddingStatusBar = args.paddingStatusBar {
       self.paddingStatusBar = paddingStatusBar
@@ -71,77 +72,24 @@ class ImmersionBarPlugin: Plugin {
     if let showNavigationBar = args.showNavigationBar {
       self.showNavigationBar = showNavigationBar
       // 注意：导航栏的显示/隐藏通常由导航控制器处理
-      os_log(.debug, log: log, "Navigation bar visibility change requested, but native implementation may be needed separately")
+      os_log(
+        .debug, log: log,
+        "Navigation bar visibility change requested, but native implementation may be needed separately"
+      )
     }
-    
+
+    if let viewController = self.manager?.viewController {
+      viewController.setNeedsStatusBarAppearanceUpdate()
+    }
+
     invoke.resolve()
   }
 
-  @objc public func enable(_ invoke: Invoke) throws {
-    os_log(.debug, log: log, "enable immersion bar")
-    
-    // 重置为默认显示状态
-    self.showStatusBar = true
-    
-    DispatchQueue.main.async {
-      if #available(iOS 13.0, *) {
-        if let window = self.statusBarWindow {
-          window.isHidden = false
-        } else if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-          if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
-            let window = UIWindow(frame: statusBarFrame)
-            window.backgroundColor = .clear
-            window.windowLevel = .statusBar + 1
-            window.isHidden = false
-            self.statusBarWindow = window
-          }
-        }
-      } else {
-        // iOS 13 以下使用旧方法
-        UIApplication.shared.isStatusBarHidden = false
-      }
-      
-      if let viewController = self.manager?.viewController {
-        viewController.setNeedsStatusBarAppearanceUpdate()
-      }
-    }
-    
-    invoke.resolve()
-  }
-
-  @objc public func disable(_ invoke: Invoke) throws {
-    os_log(.debug, log: log, "disable immersion bar")
-    
-    // 隐藏状态栏
-    self.showStatusBar = false
-    
-    DispatchQueue.main.async {
-      if #available(iOS 13.0, *) {
-        if let window = self.statusBarWindow {
-          window.isHidden = true
-        } else if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-          if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
-            let window = UIWindow(frame: statusBarFrame)
-            window.backgroundColor = .clear
-            window.windowLevel = .statusBar + 1
-            window.isHidden = true
-            self.statusBarWindow = window
-          }
-        }
-      } else {
-        // iOS 13 以下使用旧方法
-        UIApplication.shared.isStatusBarHidden = true
-      }
-    }
-    
-    invoke.resolve()
-  }
-  
   // 实现 preferredStatusBarStyle 方法，需要在扩展或子类中处理
   public override var isStatusBarHidden: Bool {
     return !self.showStatusBar
   }
-  
+
   public override var preferredStatusBarStyle: UIStatusBarStyle {
     return self.darkStatusBar ? .default : .lightContent
   }
@@ -157,7 +105,9 @@ class ImmersionBarPlugin: Plugin {
       }
     }
 
-    if let statusBarFrame = UIApplication.shared.windows.first?.windowScene?.statusBarManager?.statusBarFrame {
+    if let statusBarFrame = UIApplication.shared.windows.first?.windowScene?.statusBarManager?
+      .statusBarFrame
+    {
       let statusBarView = UIView(frame: statusBarFrame)
       if let backgroundColor = statusBarView.backgroundColor {
         os_log(.debug, log: log, "backgroundColor：%{public}@", backgroundColor)
@@ -187,26 +137,6 @@ class ImmersionBarPlugin: Plugin {
     let _visible = visible()
     os_log(.debug, log: log, "isVisible： %{public}@", _visible)
     invoke.resolve(_visible)
-  }
-
-  @objc public func hide(_ invoke: Invoke) throws {
-    if #available(iOS 13.0, *) {
-      if statusBarWindow != nil {
-        statusBarWindow!.backgroundColor = .clear
-        statusBarWindow!.windowLevel = .statusBar + 1
-        statusBarWindow!.isHidden = false
-      } else if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-        if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
-          let window = UIWindow(frame: statusBarFrame)
-          window.backgroundColor = .clear
-          window.windowLevel = .statusBar + 1
-          window.isHidden = false
-          statusBarWindow = window
-        }
-      }
-    } else {
-      UIApplication.shared.isStatusBarHidden = true
-    }
   }
 
   func visible() -> Bool {

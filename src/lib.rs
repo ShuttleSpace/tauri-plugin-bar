@@ -31,11 +31,7 @@ impl<R: Runtime, T: Manager<R>> crate::ImmersionBarExt<R> for T {
 /// Initializes the plugin.
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("immersionbar")
-        .invoke_handler(tauri::generate_handler![
-            commands::set_immersionbar,
-            commands::enable,
-            commands::disable,
-        ])
+        .invoke_handler(tauri::generate_handler![commands::set_immersionbar,])
         .setup(|app, api| {
             #[cfg(mobile)]
             let immersionbar = mobile::init(app, api)?;

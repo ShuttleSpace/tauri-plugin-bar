@@ -5,8 +5,6 @@ Default permissions for the immersionbar plugin
 #### This default permission set includes the following:
 
 - `allow-set-immersionbar`
-- `allow-enable`
-- `allow-disable`
 
 ## Permission Table
 
@@ -16,58 +14,6 @@ Default permissions for the immersionbar plugin
 <th>Description</th>
 </tr>
 
-
-<tr>
-<td>
-
-`immersionbar:allow-disable`
-
-</td>
-<td>
-
-Enables the disable command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`immersionbar:deny-disable`
-
-</td>
-<td>
-
-Denies the disable command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`immersionbar:allow-enable`
-
-</td>
-<td>
-
-Enables the enable command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`immersionbar:deny-enable`
-
-</td>
-<td>
-
-Denies the enable command without any pre-configured scope.
-
-</td>
-</tr>
 
 <tr>
 <td>

@@ -12,19 +12,3 @@ pub(crate) async fn set_immersionbar<R: Runtime>(
 ) -> Result<()> {
     app.immersionbar().set_immersionbar(payload)
 }
-
-#[tauri::command]
-pub(crate) async fn enable<R: Runtime>(
-    app: AppHandle<R>,
-    payload: Option<SetImmersionBarRequest>,
-) -> Result<()> {
-    app.immersionbar().enable(payload)
-}
-
-#[tauri::command]
-pub(crate) async fn disable<R: Runtime>(
-    app: AppHandle<R>,
-    payload: Option<SetImmersionBarRequest>,
-) -> Result<()> {
-    app.immersionbar().disable(payload)
-}

@@ -34,6 +34,8 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
+    implementation("com.geyifeng.immersionbar:immersionbar:3.2.2")
+    implementation("com.geyifeng.immersionbar:immersionbar-ktx:3.2.2")
     implementation("androidx.appcompat:appcompat:1.6.0")
     implementation("com.google.android.material:material:1.7.0")
     testImplementation("junit:junit:4.13.2")

@@ -1,70 +1,49 @@
 <script>
-  import Greet from './lib/Greet.svelte'
-  import { setImmersionBar, enable, disable } from 'tauri-plugin-immersionbar-api'
+  import Greet from "./lib/Greet.svelte";
+  import { setImmersionBar } from "tauri-plugin-immersionbar-api";
 
-	let response = $state('')
+  let response = $state("");
 
-	function updateResponse(returnValue) {
-		response += `[${new Date().toLocaleTimeString()}] ` + (typeof returnValue === 'string' ? returnValue : JSON.stringify(returnValue)) + '<br>'
-	}
+  function updateResponse(returnValue) {
+    response += `[${new Date().toLocaleTimeString()}] ` + (typeof returnValue === "string" ? returnValue : JSON.stringify(returnValue)) + "<br>";
+  }
 
-	async function _setImmersionBar() {
-		try {
-			await setImmersionBar({
-				paddingStatusBar: true,
-				paddingNavigationBar: false,
-				darkStatusBar: true,
-				showStatusBar: true,
-				showNavigationBar: true
-			})
-			updateResponse('Immersion bar set successfully')
-		} catch (error) {
-			updateResponse(`Error: ${error.message}`)
-		}
-	}
+  async function _setImmersionBar() {
+    try {
+      await setImmersionBar({
+        paddingStatusBar: true,
+        paddingNavigationBar: false,
+        darkStatusBar: true,
+        showStatusBar: true,
+        showNavigationBar: true,
+      });
+      updateResponse("Immersion bar set successfully");
+    } catch (error) {
+      updateResponse(`Error: ${error.message}`);
+    }
+  }
 
-	async function _enable() {
-		try {
-			await enable({
-				paddingStatusBar: true,
-				darkStatusBar: false
-			})
-			updateResponse('Immersion bar enabled')
-		} catch (error) {
-			updateResponse(`Error: ${error.message}`)
-		}
-	}
+  async function _hideStatusBar() {
+    try {
+      await setImmersionBar({
+        showStatusBar: false,
+      });
+      updateResponse("Status bar hidden");
+    } catch (error) {
+      updateResponse(`Error: ${error.message}`);
+    }
+  }
 
-	async function _disable() {
-		try {
-			await disable()
-			updateResponse('Immersion bar disabled')
-		} catch (error) {
-			updateResponse(`Error: ${error.message}`)
-		}
-	}
-
-	async function _hideStatusBar() {
-		try {
-			await setImmersionBar({
-				showStatusBar: false
-			})
-			updateResponse('Status bar hidden')
-		} catch (error) {
-			updateResponse(`Error: ${error.message}`)
-		}
-	}
-
-	async function _showStatusBar() {
-		try {
-			await setImmersionBar({
-				showStatusBar: true
-			})
-			updateResponse('Status bar shown')
-		} catch (error) {
-			updateResponse(`Error: ${error.message}`)
-		}
-	}
+  async function _showStatusBar() {
+    try {
+      await setImmersionBar({
+        showStatusBar: true,
+      });
+      updateResponse("Status bar shown");
+    } catch (error) {
+      updateResponse(`Error: ${error.message}`);
+    }
+  }
 </script>
 
 <main class="container">
@@ -82,9 +61,7 @@
     </a>
   </div>
 
-  <p>
-    Click on the Tauri, Vite, and Svelte logos to learn more.
-  </p>
+  <p>Click on the Tauri, Vite, and Svelte logos to learn more.</p>
 
   <div class="row">
     <Greet />
@@ -93,13 +70,11 @@
   <div class="immersion-bar-controls">
     <h2>Immersion Bar Controls</h2>
     <div class="button-row">
-      <button onclick="{_setImmersionBar}">Set Immersion Bar</button>
-      <button onclick="{_enable}">Enable</button>
-      <button onclick="{_disable}">Disable</button>
+      <button onclick={_setImmersionBar}>Set Immersion Bar</button>
     </div>
     <div class="button-row">
-      <button onclick="{_showStatusBar}">Show Status Bar</button>
-      <button onclick="{_hideStatusBar}">Hide Status Bar</button>
+      <button onclick={_showStatusBar}>Show Status Bar</button>
+      <button onclick={_hideStatusBar}>Hide Status Bar</button>
     </div>
   </div>
 
@@ -107,7 +82,6 @@
     <h3>Response Log:</h3>
     <div>{@html response}</div>
   </div>
-
 </main>
 
 <style>

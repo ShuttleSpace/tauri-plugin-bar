@@ -1,7 +1,5 @@
 [default]
 description = "Default permissions for the immersionbar plugin"
 permissions = [
-  "allow-set-immersionbar",
-  "allow-enable",
-  "allow-disable"
+  "allow-set-immersionbar"
 ]

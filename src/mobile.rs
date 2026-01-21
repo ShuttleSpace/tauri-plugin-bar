@@ -25,17 +25,6 @@ pub fn init<R: Runtime, C: DeserializeOwned>(
 pub struct ImmersionBar<R: Runtime>(PluginHandle<R>);
 
 impl<R: Runtime> ImmersionBar<R> {
-    pub fn enable(&self, payload: Option<SetImmersionBarRequest>) -> crate::Result<()> {
-        self.0
-            .run_mobile_plugin("enable", payload)
-            .map_err(Into::into)
-    }
-    pub fn disable(&self, payload: Option<SetImmersionBarRequest>) -> crate::Result<()> {
-        self.0
-            .run_mobile_plugin("disable", payload)
-            .map_err(Into::into)
-    }
-
     pub fn set_immersionbar(&self, payload: Option<SetImmersionBarRequest>) -> crate::Result<()> {
         self.0
             .run_mobile_plugin("setImmersionBar", payload)
