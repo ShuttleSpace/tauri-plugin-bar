@@ -4,124 +4,216 @@
 
   let response = $state("");
 
-  function updateResponse(returnValue) {
-    response += `[${new Date().toLocaleTimeString()}] ` + (typeof returnValue === "string" ? returnValue : JSON.stringify(returnValue)) + "<br>";
+  function updateResponse(msg) {
+    response += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
   }
 
-  async function _setImmersionBar() {
+  async function transparentBars() {
     try {
-      await setImmersionBar({
-        paddingStatusBar: true,
-        paddingNavigationBar: false,
-        darkStatusBar: true,
-        showStatusBar: true,
-        showNavigationBar: true,
-      });
-      updateResponse("Immersion bar set successfully");
+      await setImmersionBar({ transparentBar: true, statusBarDarkFont: true });
+      updateResponse("Transparent bars");
     } catch (error) {
-      updateResponse(`Error: ${error.message}`);
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.toString()}`);
     }
   }
 
-  async function _hideStatusBar() {
+  async function coloredBars() {
     try {
-      await setImmersionBar({
-        showStatusBar: false,
+      await setImmersionBar({ 
+        statusBarColor: "#3F51B5", 
+        navigationBarColor: "#303F9F",
+        statusBarDarkFont: false
       });
+      updateResponse("Colored bars (blue)");
+    } catch (error) {
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function semiTransparent() {
+    try {
+      await setImmersionBar({ 
+        barColor: "#80000000", 
+        statusBarDarkFont: false
+      });
+      updateResponse("Semi-transparent bars");
+    } catch (error) {
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function darkMode() {
+    try {
+      await setImmersionBar({ 
+        barColor: "#FFFFFF",
+        statusBarDarkFont: true,
+        navigationBarDarkIcon: true
+      });
+      updateResponse("Dark icons/font");
+    } catch (error) {
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function autoDark() {
+    try {
+      await setImmersionBar({ 
+        statusBarColor: "#FF5722",
+        navigationBarColor: "#E64A19",
+        autoDarkModeEnable: true
+      });
+      updateResponse("Auto dark mode");
+    } catch (error) {
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function fullScreen() {
+    try {
+      await setImmersionBar({ 
+        transparentBar: true,
+        fullScreen: true
+      });
+      updateResponse("Full screen");
+    } catch (error) {
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function hideStatusBar() {
+    try {
+      await setImmersionBar({ hideStatusBar: true });
       updateResponse("Status bar hidden");
     } catch (error) {
-      updateResponse(`Error: ${error.message}`);
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
     }
   }
 
-  async function _showStatusBar() {
+  async function resetBars() {
     try {
-      await setImmersionBar({
-        showStatusBar: true,
-      });
-      updateResponse("Status bar shown");
+      await setImmersionBar({ reset: true });
+      updateResponse("Reset to defaults");
     } catch (error) {
-      updateResponse(`Error: ${error.message}`);
+       console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
+    }
+  }
+
+  async function fitSystem() {
+    try {
+      await setImmersionBar({ fitsSystemWindows: true, statusBarColor: "#FF5722" });
+      updateResponse("Fit system windows");
+    } catch (error) {
+      console.log(error);
+      alert(error);
+      updateResponse(`Error: ${error.tostring()}`);
     }
   }
 </script>
 
 <main class="container">
-  <h1>Welcome to Tauri ImmersionBar Plugin!</h1>
-
-  <div class="row">
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-
-  <p>Click on the Tauri, Vite, and Svelte logos to learn more.</p>
-
-  <div class="row">
-    <Greet />
-  </div>
+  <h1>Tauri ImmersionBar Plugin Demo</h1>
 
   <div class="immersion-bar-controls">
-    <h2>Immersion Bar Controls</h2>
+    <h2>Transparency</h2>
     <div class="button-row">
-      <button onclick={_setImmersionBar}>Set Immersion Bar</button>
+      <button onclick={transparentBars}>Transparent Bars</button>
+      <button onclick={semiTransparent}>Semi-Transparent</button>
     </div>
+
+    <h2>Colors</h2>
     <div class="button-row">
-      <button onclick={_showStatusBar}>Show Status Bar</button>
-      <button onclick={_hideStatusBar}>Hide Status Bar</button>
+      <button onclick={coloredBars}>Blue Bars</button>
+      <button onclick={darkMode}>White Bars</button>
+    </div>
+
+    <h2>Dark Mode</h2>
+    <div class="button-row">
+      <button onclick={autoDark}>Auto Dark Mode</button>
+    </div>
+
+    <h2>Layout</h2>
+    <div class="button-row">
+      <button onclick={fullScreen}>Full Screen</button>
+      <button onclick={hideStatusBar}>Hide Status Bar</button>
+    </div>
+
+    <h2>Reset</h2>
+    <div class="button-row">
+      <button onclick={resetBars}>Reset All</button>
+    </div>
+
+    <h2>FitSystem</h2>
+    <div class="button-row">
+      <button onclick={fitSystem}>Fit system</button>
     </div>
   </div>
 
   <div class="response-container">
-    <h3>Response Log:</h3>
+    <h3>Log:</h3>
     <div>{@html response}</div>
   </div>
 </main>
 
 <style>
-  .logo.vite:hover {
-    filter: drop-shadow(0 0 2em #747bff);
-  }
-
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00);
-  }
-
   .immersion-bar-controls {
     margin-top: 2em;
     padding: 1em;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px;
+  }
+
+  .immersion-bar-controls h2 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+  }
+
+  .immersion-bar-controls h2:first-of-type {
+    margin-top: 0;
   }
 
   .button-row {
     margin: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .button-row button {
-    margin-right: 10px;
-    margin-bottom: 5px;
-    padding: 8px 16px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    padding: 10px 20px;
+    background-color: #3F51B5;
+    color: white;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
   }
 
   .button-row button:hover {
-    background-color: #e0e0e0;
+    background-color: #303F9F;
   }
 
   .response-container {
     margin-top: 2em;
     padding: 1em;
-    background-color: #f9f9f9;
-    border-radius: 4px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
   }
 </style>

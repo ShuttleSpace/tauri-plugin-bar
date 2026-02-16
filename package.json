@@ -1,8 +1,9 @@
 {
   "name": "tauri-plugin-immersionbar-api",
   "version": "0.1.0",
-  "author": "Tauri",
-  "description": "",
+  "author": "humphrey",
+  "description": "tauri immersionbar for android & ios",
+  "license": "MIT",
   "type": "module",
   "types": "./dist-js/index.d.ts",
   "main": "./dist-js/index.cjs",

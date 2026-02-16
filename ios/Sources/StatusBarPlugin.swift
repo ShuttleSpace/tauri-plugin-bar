@@ -7,135 +7,152 @@ import WebKit
 let log = OSLog(subsystem: "com.tauri.dev", category: "plugin.immersionbar")
 
 class SetImmersionBarArgs: Decodable {
-  let paddingStatusBar: Bool?
-  let paddingNavigationBar: Bool?
-  let darkStatusBar: Bool?
-  let showStatusBar: Bool?
-  let showNavigationBar: Bool?
+  let transparentStatusBar: Bool?
+  let transparentNavigationBar: Bool?
+  let transparentBar: Bool?
+  // Colors - Supported formats:
+  // - Hexadecimal: "#RGB", "#ARGB", "#RRGGBB", "#AARRGGBB"
+  // - Named colors will be converted (iOS supports hex formats primarily)
+  let statusBarColor: String?
+  let navigationBarColor: String?
+  let barColor: String?
+  let statusBarAlpha: Double?
+  let navigationBarAlpha: Double?
+  let barAlpha: Double?
+  let statusBarDarkFont: Bool?
+  let navigationBarDarkIcon: Bool?
+  let autoDarkModeEnable: Bool?
+  let autoStatusBarDarkModeEnable: Bool?
+  let autoStatusBarDarkModeThreshold: Double?
+  let autoNavigationBarDarkModeEnable: Bool?
+  let autoNavigationBarDarkModeThreshold: Double?
+  let fullScreen: Bool?
+  let fitsSystemWindows: Bool?
+  let hideStatusBar: Bool?
+  let hideNavigationBar: Bool?
+  let navigationBarEnable: Bool?
+  let keyboardEnable: Bool?
+  let reset: Bool?
 }
 
 class ImmersionBarPlugin: Plugin {
-  private var paddingStatusBar: Bool = false
-  private var paddingNavigationBar: Bool = false
-  private var darkStatusBar: Bool = false
-  private var showStatusBar: Bool = true
-  private var showNavigationBar: Bool = false
+  private var statusBarColor: UIColor?
+  private var statusBarAlpha: CGFloat = 1.0
+  private var statusBarDarkFont: Bool = false
+  private var hideStatusBar: Bool = false
   private var statusBarWindow: UIWindow?
 
   @objc public func setImmersionBar(_ invoke: Invoke) throws {
-    let args = try invoke.parseArgs(SetImmersionBarArgs.self)
-    os_log(
-      .debug, log: log,
-      "setImmersionBar-args: paddingStatusBar-%{public}@, paddingNavigationBar-%{public}@, darkStatusBar-%{public}@, showStatusBar-%{public}@, showNavigationBar-%{public}@",
-      String(describing: args.paddingStatusBar),
-      String(describing: args.paddingNavigationBar),
-      String(describing: args.darkStatusBar),
-      String(describing: args.showStatusBar),
-      String(describing: args.showNavigationBar))
-
-    if let paddingStatusBar = args.paddingStatusBar {
-      self.paddingStatusBar = paddingStatusBar
-    }
-    if let paddingNavigationBar = args.paddingNavigationBar {
-      self.paddingNavigationBar = paddingNavigationBar
-    }
-    if let darkStatusBar = args.darkStatusBar {
-      self.darkStatusBar = darkStatusBar
-      // 设置状态栏样式，需要通过ViewController来处理
+    do {
+      let args = try invoke.parseArgs(SetImmersionBarArgs.self)
+      
+      if args.reset == true {
+        statusBarColor = nil
+        statusBarAlpha = 1.0
+        statusBarDarkFont = false
+        hideStatusBar = false
+      }
+      
+      // Handle transparency
+      if args.transparentStatusBar == true || args.transparentBar == true {
+        statusBarColor = .clear
+        statusBarAlpha = 0.0
+      }
+      
+      // Handle colors
+      if let colorHex = args.statusBarColor ?? args.barColor {
+        statusBarColor = hexToUIColor(colorHex)
+      }
+      
+      // Handle alpha
+      if let alpha = args.statusBarAlpha ?? args.barAlpha {
+        statusBarAlpha = CGFloat(alpha)
+      }
+      
+      // Handle dark mode
+      if let darkFont = args.statusBarDarkFont ?? args.autoDarkModeEnable ?? args.autoStatusBarDarkModeEnable {
+        statusBarDarkFont = darkFont
+      }
+      
+      // Handle visibility
+      if let hide = args.hideStatusBar {
+        hideStatusBar = hide
+      }
+      
+      // Apply changes
       DispatchQueue.main.async {
+        self.updateStatusBar()
         if let viewController = self.manager?.viewController {
           viewController.setNeedsStatusBarAppearanceUpdate()
         }
       }
+      
+      invoke.resolve()
+    } catch {
+      invoke.reject(error.localizedDescription)
     }
-    if let showStatusBar = args.showStatusBar {
-      self.showStatusBar = showStatusBar
-      DispatchQueue.main.async {
-        if #available(iOS 13.0, *) {
-          if self.statusBarWindow != nil {
-            self.statusBarWindow!.isHidden = !showStatusBar
-          } else if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
-              let window = UIWindow(frame: statusBarFrame)
-              window.backgroundColor = .clear
-              window.windowLevel = .statusBar + 1
-              window.isHidden = !showStatusBar
-              self.statusBarWindow = window
-            }
-          }
-        } else {
-          // iOS 13 以下使用旧方法
-          UIApplication.shared.isStatusBarHidden = !showStatusBar
-        }
+  }
+  
+  private func updateStatusBar() {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+    
+    if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
+      if statusBarWindow == nil {
+        let window = UIWindow(frame: statusBarFrame)
+        window.windowLevel = .statusBar + 1
+        statusBarWindow = window
       }
+      
+      statusBarWindow?.backgroundColor = statusBarColor?.withAlphaComponent(statusBarAlpha)
+      statusBarWindow?.isHidden = hideStatusBar
     }
-    if let showNavigationBar = args.showNavigationBar {
-      self.showNavigationBar = showNavigationBar
-      // 注意：导航栏的显示/隐藏通常由导航控制器处理
-      os_log(
-        .debug, log: log,
-        "Navigation bar visibility change requested, but native implementation may be needed separately"
-      )
+  }
+  
+  private func hexToUIColor(_ hex: String) -> UIColor {
+    var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+    hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+    
+    var rgb: UInt64 = 0
+    Scanner(string: hexSanitized).scanHexInt64(&rgb)
+    
+    let length = hexSanitized.count
+    let r, g, b, a: CGFloat
+    
+    if length == 8 {
+      a = CGFloat((rgb & 0xFF000000) >> 24) / 255.0
+      r = CGFloat((rgb & 0x00FF0000) >> 16) / 255.0
+      g = CGFloat((rgb & 0x0000FF00) >> 8) / 255.0
+      b = CGFloat(rgb & 0x000000FF) / 255.0
+    } else {
+      r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
+      g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
+      b = CGFloat(rgb & 0x0000FF) / 255.0
+      a = 1.0
     }
-
-    if let viewController = self.manager?.viewController {
-      viewController.setNeedsStatusBarAppearanceUpdate()
-    }
-
-    invoke.resolve()
+    
+    return UIColor(red: r, green: g, blue: b, alpha: a)
   }
 
-  // 实现 preferredStatusBarStyle 方法，需要在扩展或子类中处理
   public override var isStatusBarHidden: Bool {
-    return !self.showStatusBar
+    return hideStatusBar
   }
 
   public override var preferredStatusBarStyle: UIStatusBarStyle {
-    return self.darkStatusBar ? .default : .lightContent
+    return statusBarDarkFont ? .darkContent : .lightContent
   }
 
   override func load(webview: WKWebView) {
     super.load(webview: webview)
-
-    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-      if let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
-        let window = UIWindow(frame: statusBarFrame)
-        statusBarWindow = window
-        os_log("statusBarWindow == nil? %{public}@", statusBarWindow == nil)
-      }
-    }
-
-    if let statusBarFrame = UIApplication.shared.windows.first?.windowScene?.statusBarManager?
-      .statusBarFrame
-    {
-      let statusBarView = UIView(frame: statusBarFrame)
-      if let backgroundColor = statusBarView.backgroundColor {
-        os_log(.debug, log: log, "backgroundColor：%{public}@", backgroundColor)
-      } else {
-        os_log(.debug, log: log, "backgroundColor not setting or transparent")
-      }
-    }
-
-    let style = UITraitCollection.current.userInterfaceStyle
-    if style == .dark {
-      os_log(.debug, log: log, "style light text color")
-    } else {
-      os_log(.debug, log: log, "style dark text color")
-    }
-
-    if let window = UIApplication.shared.windows.first {
-      let statusBarHeight = window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
-      if webview.frame.origin.y <= statusBarHeight {
-        os_log(.debug, log: log, "overlay true")
-      } else {
-        os_log(.debug, log: log, "overlay false")
-      }
+    
+    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+       let statusBarFrame = windowScene.statusBarManager?.statusBarFrame {
+      let window = UIWindow(frame: statusBarFrame)
+      statusBarWindow = window
     }
   }
 
   @objc public func isVisible(_ invoke: Invoke) throws {
     let _visible = visible()
-    os_log(.debug, log: log, "isVisible： %{public}@", _visible)
     invoke.resolve(_visible)
   }
 
