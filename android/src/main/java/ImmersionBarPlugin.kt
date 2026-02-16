@@ -37,6 +37,9 @@ class SetBarArgs {
     var hideNavigationBar: Boolean? = null
     var navigationBarEnable: Boolean? = null
     var keyboardEnable: Boolean? = null
+    var titleBar: String? = null
+    var titleBarMarginTop: String? = null
+    var statusBarView: String? = null
     var reset: Boolean? = null
 }
 
@@ -94,6 +97,27 @@ class ImmersionBarPlugin(private val activity: Activity) : Plugin(activity) {
                 
                 args.navigationBarEnable?.let { bar.navigationBarEnable(it) }
                 args.keyboardEnable?.let { bar.keyboardEnable(it) }
+                
+                args.titleBar?.let { 
+                    val resId = activity.resources.getIdentifier(it, "id", activity.packageName)
+                    if (resId != 0) {
+                        bar.titleBar(resId)
+                    }
+                }
+                args.titleBarMarginTop?.let {
+                    val resId = activity.resources.getIdentifier(it, "id", activity.packageName)
+                    if (resId != 0) {
+                        val view = activity.findViewById<android.view.View>(resId)
+                        if (view != null) bar.titleBarMarginTop(view)
+                    }
+                }
+                args.statusBarView?.let {
+                    val resId = activity.resources.getIdentifier(it, "id", activity.packageName)
+                    if (resId != 0) {
+                        val view = activity.findViewById<android.view.View>(resId)
+                        if (view != null) bar.statusBarView(view)
+                    }
+                }
                 
                 bar.init()
                 invoke.resolve()

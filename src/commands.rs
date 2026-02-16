@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Runtime};
+use tauri::Runtime;
 
 use crate::models::*;
 use crate::ImmersionBarExt;

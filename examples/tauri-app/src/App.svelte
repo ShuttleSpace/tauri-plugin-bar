@@ -10,7 +10,9 @@
 
   async function transparentBars() {
     try {
-      await setImmersionBar({ transparentBar: true, statusBarDarkFont: true });
+      await setImmersionBar({ 
+        titleBar: 'toolbar',
+        transparentBar: true, statusBarDarkFont: true });
       updateResponse("Transparent bars");
     } catch (error) {
        console.log(error);
@@ -22,6 +24,7 @@
   async function coloredBars() {
     try {
       await setImmersionBar({ 
+        titleBar: 'toolbar',
         statusBarColor: "#3F51B5", 
         navigationBarColor: "#303F9F",
         statusBarDarkFont: false
@@ -37,6 +40,7 @@
   async function semiTransparent() {
     try {
       await setImmersionBar({ 
+        titleBar: 'toolbar',
         barColor: "#80000000", 
         statusBarDarkFont: false
       });
@@ -51,6 +55,7 @@
   async function darkMode() {
     try {
       await setImmersionBar({ 
+        titleBar: 'toolbar',
         barColor: "#FFFFFF",
         statusBarDarkFont: true,
         navigationBarDarkIcon: true
@@ -66,6 +71,7 @@
   async function autoDark() {
     try {
       await setImmersionBar({ 
+        titleBar: 'toolbar',
         statusBarColor: "#FF5722",
         navigationBarColor: "#E64A19",
         autoDarkModeEnable: true
@@ -81,6 +87,7 @@
   async function fullScreen() {
     try {
       await setImmersionBar({ 
+        titleBar: 'toolbar',
         transparentBar: true,
         fullScreen: true
       });
@@ -94,7 +101,7 @@
 
   async function hideStatusBar() {
     try {
-      await setImmersionBar({ hideStatusBar: true });
+      await setImmersionBar({ titleBar: 'toolbar', hideStatusBar: true });
       updateResponse("Status bar hidden");
     } catch (error) {
        console.log(error);
@@ -105,7 +112,7 @@
 
   async function resetBars() {
     try {
-      await setImmersionBar({ reset: true });
+      await setImmersionBar({ titleBar: 'toolbar', reset: true });
       updateResponse("Reset to defaults");
     } catch (error) {
        console.log(error);
@@ -116,7 +123,7 @@
 
   async function fitSystem() {
     try {
-      await setImmersionBar({ fitsSystemWindows: true, statusBarColor: "#FF5722" });
+      await setImmersionBar({ titleBar: 'toolbar', fitsSystemWindows: true, statusBarColor: "#FF5722" });
       updateResponse("Fit system windows");
     } catch (error) {
       console.log(error);
