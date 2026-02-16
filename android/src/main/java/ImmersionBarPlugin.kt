@@ -43,14 +43,6 @@ class SetBarArgs {
 @TauriPlugin
 class ImmersionBarPlugin(private val activity: Activity) : Plugin(activity) {
     
-    init {
-        // Initialize ImmersionBar with default settings for Tauri
-        ImmersionBar.with(activity)
-            .transparentStatusBar()
-            .statusBarDarkFont(true)
-            .init()
-    }
-    
     @Command
     fun setImmersionBar(invoke: Invoke) {
         try {
